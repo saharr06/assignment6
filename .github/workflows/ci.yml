@@ -40,3 +40,12 @@ jobs:
 
       - name: Push Docker image
         run: docker push ghcr.io/saharr06/assignment6:latest
+
+  deploy:
+    needs: test
+    runs-on: [self-hosted, portfolio-deploy]
+
+    steps:
+      - name: Check Docker on Windows
+        shell: powershell
+        run: docker info
