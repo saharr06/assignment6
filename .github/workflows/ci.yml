@@ -41,11 +41,20 @@ jobs:
       - name: Push Docker image
         run: docker push ghcr.io/saharr06/assignment6:latest
 
+
   deploy:
     needs: test
     runs-on: [self-hosted, portfolio-deploy]
 
     steps:
-      - name: Check Docker on Windows
+      - name: Pull latest Docker image
         shell: powershell
-        run: docker info
+        run: docker pull ghcr.io/saharr06/assignment6:latest
+
+      - name: Restart application
+        shell: powershell
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          docker rm -f inventory-app 2>$null
+          docker run -d --name inventory-app -p 8000:8000 -e DATABASE_PATH=/app/data/db.sqlite3 -e GEMINI_API_KEY="$env:GEMINI_API_KEY" -v inventory-data:/app/data ghcr.io/saharr06/assignment6:latest
